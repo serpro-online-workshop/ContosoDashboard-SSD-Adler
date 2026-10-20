@@ -5,6 +5,14 @@
 **Status**: Draft  
 **Input**: User description: `StakeholderDocs/document-upload-and-management-feature.md`
 
+## Clarifications
+
+### Session 2026-10-20
+
+- Q: Os proprietários devem poder revogar o acesso de usuários ou equipes após compartilhar um documento? → A: Sim. Proprietários podem revogar compartilhamentos existentes; administradores também podem intervir.
+- Q: Documentos associados a um projeto devem ficar automaticamente acessíveis a todos os membros autorizados desse projeto, mesmo sem compartilhamento individual? → A: Sim. Membros autorizados do projeto têm acesso automático; compartilhamento adicional atende usuários ou equipes fora do projeto.
+- Q: O que deve acontecer quando a verificação contra malware estiver indisponível durante um upload? → A: O arquivo deve ser rejeitado ou permanecer inacessível até a verificação concluir.
+
 ## User Scenarios & Testing *(mandatory)*
 
 ### User Story 1 - Upload and Organize a Document (Priority: P1)
@@ -73,6 +81,7 @@ As a document owner, I want to share a document with specific users or teams so 
 2. **Given** a user receives a document share, **When** the share is completed, **Then** the recipient receives an in-app notification and the document appears in Shared with Me.
 3. **Given** a document is associated with a project, **When** a new document is added to that project, **Then** project members receive the configured in-app notification while access remains governed by project membership and document permissions.
 4. **Given** a user is not an owner or otherwise authorized to share a document, **When** the user attempts to share it, **Then** the action is denied.
+5. **Given** a document has been shared with a user or team, **When** the owner revokes that share, **Then** the recipient immediately loses access while the document owner and authorized administrators retain access.
 
 ---
 
@@ -94,6 +103,7 @@ As an employee, I want documents to appear in the project, task, and dashboard c
 
 - A multi-file upload may contain both valid and invalid files; each file must receive an individual result, and invalid files must not become accessible.
 - A file that passes extension and size checks but fails security scanning must be rejected before it is available to any user.
+- If malware scanning is unavailable, the upload must be rejected or remain inaccessible until scanning completes; it must not be released based only on extension and size checks.
 - A duplicate title is allowed when other metadata distinguishes the documents; the stored document identity must remain unique.
 - A user may lose project membership or another permission after a document is listed; every preview, download, edit, replace, delete, and share action must re-check current authorization.
 - A document associated with a deleted or unavailable project must remain governed by its owner and administrator permissions and must not create an inaccessible orphaned reference in user views.
@@ -111,17 +121,17 @@ As an employee, I want documents to appear in the project, task, and dashboard c
 - **FR-003**: The system MUST reject any file larger than 25 MB and clearly identify the reason for rejection.
 - **FR-004**: The system MUST allow users to add an optional description, project association, and custom tags to a document.
 - **FR-005**: The system MUST record each document's title, description, category, tags, associated project when applicable, uploader, upload date and time, file size, and file type.
-- **FR-006**: The system MUST validate uploaded content for malware before making the document available to users.
+- **FR-006**: The system MUST validate uploaded content for malware before making the document available to users and MUST reject or keep the file inaccessible when that validation is unavailable.
 - **FR-007**: The system MUST store document files in a non-public location using generated unique storage identifiers and MUST never use an untrusted filename or path as the storage identity.
 - **FR-008**: The system MUST ensure that a failed file save or metadata save does not leave an accessible document in an incomplete state.
 - **FR-009**: The system MUST enforce access based on the existing authenticated user and role model, including employee, team lead, project manager, and administrator permissions.
-- **FR-010**: Employees MUST be able to view their own uploaded documents, and project members MUST be able to view documents associated with projects they are authorized to access.
+- **FR-010**: Employees MUST be able to view their own uploaded documents, and authorized project members MUST automatically be able to view and download documents associated with their projects without an individual share.
 - **FR-011**: The system MUST provide document browsing with sorting by title, upload date, category, and file size, and filtering by category, project, and date range.
 - **FR-012**: The system MUST support search by title, description, tags, uploader name, and associated project while excluding documents the current user cannot access.
 - **FR-013**: The system MUST allow authorized users to preview PDFs and images in the browser and download any document they are authorized to access.
 - **FR-014**: Document owners MUST be able to edit title, description, category, and tags, and MUST be able to replace the document file when the replacement passes all upload validations.
 - **FR-015**: Document owners MUST be able to permanently delete their documents after confirmation; project managers MUST be able to delete documents associated with their projects; administrators MUST retain full document management access.
-- **FR-016**: The system MUST allow document owners to share documents with selected users or teams and MUST prevent unselected users from gaining access through the share operation.
+- **FR-016**: The system MUST allow document owners to share documents with selected users or teams outside the document's authorized project audience and MUST prevent unselected users from gaining access through the share operation.
 - **FR-017**: The system MUST show shared documents in each recipient's Shared with Me view and send an in-app notification for a new share.
 - **FR-018**: The system MUST expose authorized project documents in project views and support associating documents uploaded or attached from a task with that task's project.
 - **FR-019**: The dashboard MUST show the five most recent documents uploaded by the current user and a document count in its summary information.
@@ -130,6 +140,7 @@ As an employee, I want documents to appear in the project, task, and dashboard c
 - **FR-022**: The system MUST provide clear status, validation, authorization, and failure messages without exposing sensitive file paths or security details.
 - **FR-023**: The system MUST support offline operation using local storage for the training environment and preserve a storage boundary that can be replaced by a future cloud storage provider without changing user-facing document behavior.
 - **FR-024**: Document identifiers MUST remain integer-based and categories MUST be stored as their text values to remain consistent with the existing application data model.
+- **FR-025**: Document owners MUST be able to revoke an existing share with a user or team, and administrators MUST be able to intervene when required; revoked recipients MUST no longer access the document.
 
 ### Key Entities
 
