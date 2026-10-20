@@ -1,50 +1,73 @@
-# [PROJECT_NAME] Constitution
-<!-- Example: Spec Constitution, TaskFlow Constitution, etc. -->
+<!--
+Sync Impact Report
+- Version change: template -> 1.0.0
+- Modified principles: placeholders -> five project principles
+- Added sections: Technical Constraints; Development Workflow
+- Removed sections: none
+- Follow-up TODOs: repair the missing Resolve-TemplateContent function in common.ps1
+-->
+
+# ContosoDashboard Constitution
 
 ## Core Principles
 
-### [PRINCIPLE_1_NAME]
-<!-- Example: I. Library-First -->
-[PRINCIPLE_1_DESCRIPTION]
-<!-- Example: Every feature starts as a standalone library; Libraries must be self-contained, independently testable, documented; Clear purpose required - no organizational-only libraries -->
+### I. Layered Architecture and Abstractions
+Features MUST preserve the separation between pages, services, data, and models. Infrastructure
+dependencies MUST be accessed through interfaces when a local implementation may later be replaced
+by a cloud implementation. Business logic MUST remain independent of storage-provider details so
+the application can continue to run offline and retain a practical migration path.
 
-### [PRINCIPLE_2_NAME]
-<!-- Example: II. CLI Interface -->
-[PRINCIPLE_2_DESCRIPTION]
-<!-- Example: Every library exposes functionality via CLI; Text in/out protocol: stdin/args → stdout, errors → stderr; Support JSON + human-readable formats -->
+### II. Security and Authorization by Default
+Every protected page and operation MUST enforce authentication and authorization. Service-layer
+checks MUST protect against unauthorized data access and IDOR even when a page or endpoint already
+performs authorization. User-supplied filenames, paths, and metadata MUST be validated and MUST NOT
+be used to construct trusted storage paths directly. Security-sensitive behavior MUST fail closed.
 
-### [PRINCIPLE_3_NAME]
-<!-- Example: III. Test-First (NON-NEGOTIABLE) -->
-[PRINCIPLE_3_DESCRIPTION]
-<!-- Example: TDD mandatory: Tests written → User approved → Tests fail → Then implement; Red-Green-Refactor cycle strictly enforced -->
+### III. Requirements Before Implementation
+Each feature MUST have a clear user-facing requirement, acceptance criteria, and an implementation
+plan before code changes begin. Changes MUST remain within the existing application architecture
+unless a documented constraint requires otherwise. Ambiguous requirements MUST be recorded as
+clarifications rather than resolved implicitly in code.
 
-### [PRINCIPLE_4_NAME]
-<!-- Example: IV. Integration Testing -->
-[PRINCIPLE_4_DESCRIPTION]
-<!-- Example: Focus areas requiring integration tests: New library contract tests, Contract changes, Inter-service communication, Shared schemas -->
+### IV. Verification at the Risk Boundary
+New behavior MUST include focused verification for its primary acceptance criteria. Authorization,
+storage, persistence, and cross-service changes MUST include integration coverage or an equivalent
+executable check. A change is not complete until the relevant build, tests, or validation command
+has passed, or the remaining limitation is explicitly documented.
 
-### [PRINCIPLE_5_NAME]
-<!-- Example: V. Observability, VI. Versioning & Breaking Changes, VII. Simplicity -->
-[PRINCIPLE_5_DESCRIPTION]
-<!-- Example: Text I/O ensures debuggability; Structured logging required; Or: MAJOR.MINOR.BUILD format; Or: Start simple, YAGNI principles -->
+### V. Simplicity, Auditability, and Offline Operation
+The simplest design that satisfies the requirements MUST be preferred. The application MUST remain
+usable without cloud services in its training configuration. Operations that affect documents,
+permissions, or other security-relevant state MUST produce sufficient audit information for the
+authorized audience. Performance targets and known training-only limitations MUST be documented
+when they affect design decisions.
 
-## [SECTION_2_NAME]
-<!-- Example: Additional Constraints, Security Requirements, Performance Standards, etc. -->
+## Technical Constraints
 
-[SECTION_2_CONTENT]
-<!-- Example: Technology stack requirements, compliance standards, deployment policies, etc. -->
+The project targets ASP.NET Core with Blazor Server, Entity Framework Core, SQL Server LocalDB,
+Bootstrap, and the existing mock authentication system. Training deployments MUST work offline
+and use local filesystem storage for uploaded files. Files MUST be stored outside `wwwroot`, use
+GUID-based paths, enforce an allowlist and the 25 MB per-file limit, and follow the sequence:
+validate, authorize, generate a unique path, save the file, then persist metadata. Document storage
+MUST be exposed through `IFileStorageService` so Azure Blob Storage can be added without business
+logic changes. Existing integer identifiers and text category values MUST be preserved for document
+data unless an approved migration changes that contract.
 
-## [SECTION_3_NAME]
-<!-- Example: Development Workflow, Review Process, Quality Gates, etc. -->
+## Development Workflow
 
-[SECTION_3_CONTENT]
-<!-- Example: Code review requirements, testing gates, deployment approval process, etc. -->
+Work MUST proceed from specification to plan to tasks to implementation. Reviews MUST check
+constitution compliance, authorization boundaries, data-validation behavior, and regression risk.
+Before completion, the implementer MUST run the narrowest relevant executable validation and then
+the broader project build or test command when available. Unrelated refactors MUST be excluded.
 
 ## Governance
 <!-- Example: Constitution supersedes all other practices; Amendments require documentation, approval, migration plan -->
 
-[GOVERNANCE_RULES]
-<!-- Example: All PRs/reviews must verify compliance; Complexity must be justified; Use [GUIDANCE_FILE] for runtime development guidance -->
+This constitution governs feature specifications, plans, tasks, implementation, and reviews for
+ContosoDashboard. Amendments MUST state the motivation, affected principles, compatibility impact,
+and migration or follow-up work. Every amendment MUST update the semantic version and amendment
+date. MAJOR versions remove or redefine obligations, MINOR versions add or materially expand
+obligations, and PATCH versions clarify wording without changing intent. Reviews MUST verify that
+new work follows these principles; deviations require explicit justification in the relevant plan.
 
-**Version**: [CONSTITUTION_VERSION] | **Ratified**: [RATIFICATION_DATE] | **Last Amended**: [LAST_AMENDED_DATE]
-<!-- Example: Version: 2.1.1 | Ratified: 2025-06-13 | Last Amended: 2025-07-16 -->
+**Version**: 1.0.0 | **Ratified**: 2026-10-20 | **Last Amended**: 2026-10-20
